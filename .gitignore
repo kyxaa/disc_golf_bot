@@ -2,7 +2,6 @@
 *.webm
 *.log
 .vscode
-DungeonsNDragons.db
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
