@@ -19,9 +19,9 @@ async def on_ready():
     await bot.change_presence(activity=git_status)
 
 
-def weather_lat_long(lat, long):
+def weather_lat_long(lat, lon):
     r = requests.get(
-        f'https://api.openweathermap.org/data/2.5/onecall?lat={lat}&lon={long}&appid={weather_token}&units=imperial')
+        f'https://api.openweathermap.org/data/2.5/onecall?lat={lat}&lon={lon}&appid={weather_token}&units=imperial')
     if not r.ok:
         # return
         raise Exception("ERROR: Could not fetch weather")
