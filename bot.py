@@ -19,6 +19,7 @@ DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
 # TODO: Create an update system that has properly handling...lets not make this another Calendra fiasco
 # TODO: Create information scrapping from messages in specific channel.
 # TODO: I would like the bot to create a "global" variable that is the channel that we are updating course info. I would like to this to be based on channel name.
+# TODO: Test webhooks
 #######################################################################
 
 @bot.event
