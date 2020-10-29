@@ -8,6 +8,7 @@ import json
 from dotenv import load_dotenv
 import asyncio
 import asyncpg
+import re
 bot = commands.Bot(command_prefix=INVOCATION)
 
 load_dotenv()
@@ -30,21 +31,21 @@ async def on_ready():
     await bot.change_presence(activity=git_status)
 
 
-class HourlyUpdate(commands.Cog):
+class IntervalUpdate(commands.Cog):
     def __init__(self):
         self.index = 0
         self.bot = bot
-        self.printer.start()
+        self.update.start()
 
     def cog_unload(self):
-        self.printer.cancel()
+        self.update.cancel()
 
     @tasks.loop(seconds=5.0)
-    async def printer(self):
+    async def update(self):
         await self.scan_channel()
 
-    @printer.before_loop
-    async def before_printer(self):
+    @update.before_loop
+    async def before_update(self):
         print('waiting...')
         await self.bot.wait_until_ready()
 
@@ -53,7 +54,12 @@ class HourlyUpdate(commands.Cog):
         for channel in channels:
             if channel.name == "course-info":
                 pinned_messages = await channel.pins()
-                for messages in pinned_messages:
+                for message in pinned_messages:
+                    coordinates_match = re.search(
+                        "\(([0-9.,\s-]*)\)", message.content)
+                    coordinates_list = coordinates_match.group(1).split(", ")
+                    weather_info = weather_lat_long(
+                        coordinates_list[0], coordinates_list[1])
                     pass
 
 
@@ -70,12 +76,12 @@ def weather_lat_long(lat, lon):
         # return
         raise Exception("ERROR: Could not fetch weather")
     data = r.json()
-    with open('course_data.txt', 'w') as outfile:
-        json.dump(data, outfile)
-    pass
+    return data
+    # with open('course_data.txt', 'w') as outfile:
+    #     json.dump(data, outfile)
 
 # weather_lat_long(33.044564, -96.691857)
 
 
-bot.add_cog(HourlyUpdate())
+bot.add_cog(IntervalUpdate())
 bot.run(DISCORD_TOKEN)
