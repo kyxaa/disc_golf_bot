@@ -40,7 +40,7 @@ class IntervalUpdate(commands.Cog):
     def cog_unload(self):
         self.update.cancel()
 
-    @tasks.loop(seconds=5.0)
+    @tasks.loop(seconds=60.0)
     async def update(self):
         await self.scan_channel()
 
@@ -76,9 +76,9 @@ def weather_lat_long(lat, lon):
         # return
         raise Exception("ERROR: Could not fetch weather")
     data = r.json()
+    with open('course_data.json', 'w') as outfile:
+        json.dump(data, outfile)
     return data
-    # with open('course_data.txt', 'w') as outfile:
-    #     json.dump(data, outfile)
 
 # weather_lat_long(33.044564, -96.691857)
 
