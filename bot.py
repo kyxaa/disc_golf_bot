@@ -1,6 +1,6 @@
 import discord
 from discord.ext import tasks, commands
-from config import INVOCATION, DATETIME_STRING_FORMAT, GITHUB_REPO, SUNNY, FEW_CLOUDS, SCATTERED_CLOUDS, BROKEN_CLOUDS, SHOWER_RAIN, RAIN, THUNDERSTORM, SNOW, MIST
+from config import INVOCATION, DATETIME_STRING_FORMAT, GITHUB_REPO, SUNNY, FEW_CLOUDS, SCATTERED_CLOUDS, BROKEN_CLOUDS, SHOWER_RAIN, RAIN, THUNDERSTORM, SNOW, FOG
 from datetime import datetime
 import requests
 import os
@@ -46,7 +46,8 @@ class WeatherUpdate(commands.Cog):
         for channel in channels:
             if channel.name == "course-info":
                 pinned_messages = await channel.pins()
-                for message in pinned_messages:
+                for pinned_message in pinned_messages:
+                    message = await channel.fetch_message(pinned_message.id)
                     coordinates_match = re.search(
                         "\(([0-9.,\s-]*)\)", message.content)
                     coordinates_list = coordinates_match.group(1).split(", ")
