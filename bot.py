@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 import asyncio
 import asyncpg
 import re
+import pandas
 bot = commands.Bot(command_prefix=INVOCATION)
 
 load_dotenv()
@@ -41,6 +42,41 @@ class WeatherUpdate(commands.Cog):
         print('waiting...')
         await self.bot.wait_until_ready()
 
+    def directions_from_degrees(self, degrees_direction):
+        if (348.75 <= degrees_direction < 360) or (0 <= degrees_direction < 11.25):
+            wind_direction = "N"
+        elif (11.25 <= degrees_direction < 33.75):
+            wind_direction = "NNE"
+        elif (33.75 <= degrees_direction < 56.25):
+            wind_direction = "NE"
+        elif (56.25 <= degrees_direction < 78.75):
+            wind_direction = "ENE"
+        elif (78.75 <= degrees_direction < 101.25):
+            wind_direction = "E"
+        elif (101.25 <= degrees_direction < 123.75):
+            wind_direction = "ESE"
+        elif (123.75 <= degrees_direction < 146.25):
+            wind_direction = "SE"
+        elif (146.25 <= degrees_direction < 168.75):
+            wind_direction = "SSE"
+        elif (168.75 <= degrees_direction < 191.25):
+            wind_direction = "S"
+        elif (191.25 <= degrees_direction < 213.75):
+            wind_direction = "SSW"
+        elif (213.75 <= degrees_direction < 236.25):
+            wind_direction = "SW"
+        elif (236.25 <= degrees_direction < 258.75):
+            wind_direction = "WSW"
+        elif (258.75 <= degrees_direction < 281.25):
+            wind_direction = "W"
+        elif (281.25 <= degrees_direction < 303.75):
+            wind_direction = "WNW"
+        elif (303.75 <= degrees_direction < 326.25):
+            wind_direction = "NW"
+        elif (326.25 <= degrees_direction < 348.75):
+            wind_direction = "NNW"
+        return wind_direction
+
     async def scan_channel_and_update_embeds(self):
         channels = bot.get_all_channels()
         for channel in channels:
@@ -57,10 +93,56 @@ class WeatherUpdate(commands.Cog):
                     pass
 
     async def update_embed(self, message, weather_info):
-        with open('embed_json.json', 'r') as infile:
-            data = json.load(infile)
-        embed = discord.Embed.from_dict(data)
+        embed = await self.build_embed(weather_info)
         await message.edit(embed=embed)
+
+    async def build_embed(self, weather_info):
+        embed_dict = {
+            "title": "",
+            "type": "rich",
+            "color": 1009165,
+            "description": ""
+        }
+        pass
+        if weather_info["current"]["weather"][0]["icon"] == "01d":
+            current_weather_icon = SUNNY
+        elif weather_info["current"]["weather"][0]["icon"] == "02d":
+            current_weather_icon = FEW_CLOUDS
+        elif weather_info["current"]["weather"][0]["icon"] == "03d":
+            current_weather_icon = SCATTERED_CLOUDS
+        elif weather_info["current"]["weather"][0]["icon"] == "04d":
+            current_weather_icon = BROKEN_CLOUDS
+        elif weather_info["current"]["weather"][0]["icon"] == "09d":
+            current_weather_icon = SHOWER_RAIN
+        elif weather_info["current"]["weather"][0]["icon"] == "10d":
+            current_weather_icon = RAIN
+        elif weather_info["current"]["weather"][0]["icon"] == "11d":
+            current_weather_icon = THUNDERSTORM
+        elif weather_info["current"]["weather"][0]["icon"] == "13d":
+            current_weather_icon = SNOW
+        elif weather_info["current"]["weather"][0]["icon"] == "50n":
+            current_weather_icon = FOG
+        pass
+        current_wind_direction = self.directions_from_degrees(
+            weather_info["current"]["wind_deg"])
+        current_datetime = datetime.fromtimestamp(
+            weather_info["current"]["dt"])
+        if current_datetime.minute < 30:
+            start_of_hourly_info = 2
+        elif current_datetime.minute >= 30:
+            start_of_hourly_info = 3
+
+        iterating_hour_value = start_of_hourly_info
+        for hour in weather_info["hourly"]:
+            if iterating_hour_value > start_of_hourly_info + 16:
+                break
+            if weather_info["hourly"].index(hour) == iterating_hour_value:
+                iterating_hour_value += 2
+                pass
+
+        # hourly_dict = {
+        #     ""
+        # }
 
     def weather_lat_long(self, lat, lon):
         # r = requests.get(
