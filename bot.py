@@ -1,6 +1,6 @@
 import discord
 from discord.ext import tasks, commands
-from config import INVOCATION, DATETIME_STRING_FORMAT, GITHUB_REPO, SUNNY, FEW_CLOUDS, SCATTERED_CLOUDS, BROKEN_CLOUDS, SHOWER_RAIN, RAIN, THUNDERSTORM, SNOW, FOG
+from config import INVOCATION, DATETIME_STRING_FORMAT, GITHUB_REPO, SUNNY, FEW_CLOUDS, SCATTERED_CLOUDS, BROKEN_CLOUDS, SHOWER_RAIN, RAIN, THUNDERSTORM, SNOW, FOG, ICON_CODE_TUPLE_LIST
 from datetime import datetime
 import requests
 import os
@@ -10,6 +10,7 @@ import asyncio
 import asyncpg
 import re
 import pandas
+from pytz import timezone
 bot = commands.Bot(command_prefix=INVOCATION)
 
 load_dotenv()
@@ -77,6 +78,11 @@ class WeatherUpdate(commands.Cog):
             wind_direction = "NNW"
         return wind_direction
 
+    def fetch_emoji_with_icon_code(self, icon_code):
+        for pair in ICON_CODE_TUPLE_LIST:
+            if pair[0] == icon_code:
+                return pair[1]
+
     async def scan_channel_and_update_embeds(self):
         channels = bot.get_all_channels()
         for channel in channels:
@@ -104,29 +110,13 @@ class WeatherUpdate(commands.Cog):
             "description": ""
         }
         pass
-        if weather_info["current"]["weather"][0]["icon"] == "01d":
-            current_weather_icon = SUNNY
-        elif weather_info["current"]["weather"][0]["icon"] == "02d":
-            current_weather_icon = FEW_CLOUDS
-        elif weather_info["current"]["weather"][0]["icon"] == "03d":
-            current_weather_icon = SCATTERED_CLOUDS
-        elif weather_info["current"]["weather"][0]["icon"] == "04d":
-            current_weather_icon = BROKEN_CLOUDS
-        elif weather_info["current"]["weather"][0]["icon"] == "09d":
-            current_weather_icon = SHOWER_RAIN
-        elif weather_info["current"]["weather"][0]["icon"] == "10d":
-            current_weather_icon = RAIN
-        elif weather_info["current"]["weather"][0]["icon"] == "11d":
-            current_weather_icon = THUNDERSTORM
-        elif weather_info["current"]["weather"][0]["icon"] == "13d":
-            current_weather_icon = SNOW
-        elif weather_info["current"]["weather"][0]["icon"] == "50n":
-            current_weather_icon = FOG
+        current_weather_icon = self.fetch_emoji_with_icon_code(
+            weather_info["current"]["weather"][0]["icon"])
         pass
         current_wind_direction = self.directions_from_degrees(
             weather_info["current"]["wind_deg"])
         current_datetime = datetime.fromtimestamp(
-            weather_info["current"]["dt"])
+            weather_info["current"]["dt"], tz=timezone(weather_info["timezone"]))
         if current_datetime.minute < 30:
             start_of_hourly_info = 2
         elif current_datetime.minute >= 30:
@@ -137,6 +127,8 @@ class WeatherUpdate(commands.Cog):
             if iterating_hour_value > start_of_hourly_info + 16:
                 break
             if weather_info["hourly"].index(hour) == iterating_hour_value:
+                hour_datetime = datetime.fromtimestamp(hour["dt"])
+
                 iterating_hour_value += 2
                 pass
 
