@@ -1,5 +1,5 @@
 INVOCATION = "!"
-DATETIME_STRING_FORMAT = "%m/%d/%y %H:%M"
+DATETIME_STRING_FORMAT = "%m/%d/%y %H:%M %Z"
 GITHUB_REPO = "https://github.com/kyxaa/disc_golf_bot"
 
 # emojis for weather
