@@ -4,7 +4,7 @@ GITHUB_REPO = "https://github.com/kyxaa/disc_golf_bot"
 
 # emojis for weather
 SUNNY = ":sunny:"
-FEW_CLOUDS = ":white_sun_snall_cloud:"
+FEW_CLOUDS = ":white_sun_small_cloud:"
 SCATTERED_CLOUDS = ":cloud:"
 BROKEN_CLOUDS = ":white_sun_cloud:"
 SHOWER_RAIN = ":white_sun_rain_cloud:"
@@ -15,15 +15,15 @@ FOG = ":fog:"
 
 # list for converting the Open Weather codes into the above emojis
 ICON_CODE_TUPLE_LIST = [
-    ("01d", SUNNY),
-    ("02d", FEW_CLOUDS),
-    ("03d", SCATTERED_CLOUDS),
-    ("04d", BROKEN_CLOUDS),
-    ("09d", SHOWER_RAIN),
-    ("10d", RAIN),
-    ("11d", THUNDERSTORM),
-    ("13d", SNOW),
-    ("50n", FOG)]
+    ("01", SUNNY),
+    ("02", FEW_CLOUDS),
+    ("03", SCATTERED_CLOUDS),
+    ("04", BROKEN_CLOUDS),
+    ("09", SHOWER_RAIN),
+    ("10", RAIN),
+    ("11", THUNDERSTORM),
+    ("13", SNOW),
+    ("50", FOG)]
 
 # list for converting degrees into directions
 DIRECTION_DEGREES_TUPLE_LIST = [

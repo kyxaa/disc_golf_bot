@@ -5,10 +5,16 @@ from config import INVOCATION, GITHUB_REPO
 from datetime import datetime
 from dotenv import load_dotenv
 from os import getenv
-import json
+import pprint
+import re
+# import json
+# from bs4 import BeautifulSoup
 import asyncio
 # import asyncpg
 from disc_golf_park import DiscGolfPark
+from disc_golf_park import DiscGolfParkMessageTemplate
+
+import requests
 
 load_dotenv()
 DISCORD_TOKEN = getenv("DISCORD_TOKEN")
@@ -16,7 +22,17 @@ DISCORD_TOKEN = getenv("DISCORD_TOKEN")
 bot = commands.Bot(command_prefix=INVOCATION)
 
 
-
+# r = requests.get('https://udisc.com/courses/b-b-owen-dgc-yS7K')
+# # if not r.ok:
+# #     # return
+# #     raise Exception("ERROR: Could not fetch weather")
+# # json_data = r.json()
+# # with open('udisc_site_data.json', 'w') as outfile:
+# #     json.dump(json_data, outfile)
+# soup = BeautifulSoup(r.content, 'html.parser')
+# mydivs = soup.findAll('div', {"class": "jss464"})
+# pass
+# print(soup.prettify())
 
 @bot.event
 async def on_ready():
@@ -36,24 +52,89 @@ class ParkWeatherUpdateCog(commands.Cog):
     def cog_unload(self):
         self.update.cancel()
 
-    @tasks.loop(seconds=60.0)
+    @tasks.loop(minutes=60.0)
     async def update(self):
-        await self.scan_channel_and_update_embeds()
+        # await self.scan_channel_and_update_embeds()
+        pass
 
     @update.before_loop
     async def before_update(self):
         print('waiting...')
         await self.bot.wait_until_ready()
 
-    async def scan_channel_and_update_embeds(self):
-        channels = bot.get_all_channels()
-        for channel in channels:
-            if channel.name == "course-info":
-                pinned_messages = await channel.pins()
-                for pinned_message in pinned_messages:
-                    message = await channel.fetch_message(pinned_message.id)
-                    park = DiscGolfPark(message)
-                    await park.update_embed()
+@bot.command()
+async def new_park(ctx, arg):
+    messsages_to_be_deleted = [ctx.message]
+    def check(m):
+        return m.channel == ctx.channel and m.author == ctx.author
+
+    park_name = arg
+
+    gmaps_req = await ctx.send(content=f"What is the Google Maps link for {park_name}?")
+    messsages_to_be_deleted.append(gmaps_req)
+    gmaps_resp = await bot.wait_for('message', check=check)
+    messsages_to_be_deleted.append(gmaps_resp)
+    
+    udiscs_req = await ctx.send(content=f"What is the UDiscs link for {park_name}?")
+    messsages_to_be_deleted.append(udiscs_req)
+    udiscs_resp = await bot.wait_for('message', check=check)
+    messsages_to_be_deleted.append(udiscs_resp)
+
+    coords_req = await ctx.send(content=f"What are the coordinates for {park_name} in the format *lattitude*,*longitude*?")
+    messsages_to_be_deleted.append(coords_req)
+    coords_resp = await bot.wait_for('message', check=check)
+    messsages_to_be_deleted.append(coords_resp)
+
+    park_coords_list = coords_resp.content.split(",")
+
+    emoji_req = await ctx.send(content=f"Which emoji would you like to use for {park_name}?")
+    messsages_to_be_deleted.append(emoji_req)
+    emoji_resp = await bot.wait_for('message', check=check)
+    messsages_to_be_deleted.append(emoji_resp)
+
+
+    emoji_id = re.search(
+            "\:([0-9]{10,})", emoji_resp.content).group(1)
+    park_emoji = await ctx.guild.fetch_emoji(emoji_id)
+
+    park_message_template = DiscGolfParkMessageTemplate(park_name, park_coords_list, gmaps_resp.content, udiscs_resp.content, park_emoji)
+    pprint.pp(park_message_template.__dict__)
+
+    for message in messsages_to_be_deleted:
+        await message.delete()
+    
+    new_park_message = await ctx.send(content=park_message_template.__dict__)
+    await new_park_message.edit(suppress=True)
+    await new_park_message.pin()
+    await new_park_message.add_reaction(park_emoji)
+
+
+    # desc_req = await ctx.send(content=f"What can you tell me about >>>{name_resp.content}<<<?")
+    # desc_resp = await bot.wait_for('message', check=check)
+
+
+    # async def scan_channel_and_update_embeds(self):
+    #     channels = bot.get_all_channels()
+    #     for channel in channels:
+    #         if channel.name == "course-info":
+    #             await emoji = 
+    #             park_template = DiscGolfParkMessageTemplate("BB Owens", ["32.881046", "-96.698731"], "https://goo.gl/maps/99TmQpQVixNcAn8U8", "https://app.udisc.com/applink/course/2225", "")
+
+
+
+
+                # pinned_messages = await channel.pins()
+                # for pinned_message in pinned_messages:
+                #     message = await channel.fetch_message(pinned_message.id)
+                #     park = DiscGolfPark(message)
+                #     park.fetch_weather_info()
+                #     # pprint.pp(park.__dict__)
+                #     # await park.update_embed()
+                #     emoji = message.reactions[0].emoji
+                #     await message.clear_reactions()
+                #     await message.add_reaction(emoji)
+                #     pprint.pp(message.reactions[0].emoji)
+                    # pprint.pp(message)
 
 
 
@@ -77,3 +158,28 @@ bot.run(DISCORD_TOKEN)
 # Google Maps Link: https://goo.gl/maps/99TmQpQVixNcAn8U8\n\
 # \n\
 # UDisc Link: https://app.udisc.com/applink/course/2225")
+
+#                 await channel.send(content="**TURNER PARK** (32.752835, -96.996896)\n\
+# ===============================\n\
+# Google Maps Link: https://goo.gl/maps/E7juCzz2mqftQLK29\n\
+# \n\
+# UDisc Link: https://app.udisc.com/applink/course/2557")
+
+#                 await channel.send(content="**HARRY MYERS** (32.931592, -96.450927)\n\
+# ===============================\n\
+# Google Maps Link: https://goo.gl/maps/du4nscLcEXdjpvrY6\n\
+# \n\
+# UDisc Link: https://app.udisc.com/applink/course/2314")
+
+#                 await channel.send(content="**PORTER PARK** (32.827703, -96.605390)\n\
+# ===============================\n\
+# Google Maps Link: https://goo.gl/maps/zZPYUP6axZwpvABBA\n\
+# \n\
+# UDisc Link: https://app.udisc.com/applink/course/2295")
+
+#                 await channel.send(content="**AUBUDON PARK** (32.846327, -96.614739)\n\
+# ===============================\n\
+# Google Maps Link: https://goo.gl/maps/wyu7GWE8mnYSk7Tn8\n\
+# \n\
+# UDisc Link: https://app.udisc.com/applink/course/2240")
+

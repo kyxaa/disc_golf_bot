@@ -1,3 +1,4 @@
+from typing import Dict
 import discord
 import requests
 from datetime import datetime
@@ -19,6 +20,9 @@ class DiscGolfPark:
             "\*\*([A-Za-z\s0-9]*)\*\*\s\(([0-9.,\s-]*)\)", self.message.content)
         self.name = message_match.group(1)
         self.coords = message_match.group(2).split(", ")
+        self.weather_info = {}
+
+    async def fetch_weather_info(self):
         self.weather_info = self.weather_lat_long(
             self.coords[0], self.coords[1])
 
@@ -31,7 +35,7 @@ class DiscGolfPark:
         }
 
         current_weather_icon = self.fetch_emoji_with_icon_code(
-            self.weather_info["current"]["weather"][0]["icon"])
+            self.weather_info["current"]["weather"][0]["icon"][:-1])
 
         current_temp = self.weather_info["current"]["temp"]
 
@@ -82,3 +86,11 @@ class DiscGolfPark:
         #     data = json.load(infile)
         ############################################
         return data
+
+class DiscGolfParkMessageTemplate:
+    def __init__(self, name:str, coords:list, gmaps_url:str, udiscs_url:str, emoji: discord.Emoji):
+        self.name = name
+        self.coords = coords
+        self.gmaps_url = gmaps_url
+        self.udiscs_url = udiscs_url
+        self.emoji = emoji
