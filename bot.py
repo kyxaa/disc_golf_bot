@@ -13,7 +13,7 @@ import sys
 import asyncio
 # import asyncpg
 from disc_golf_park import DiscGolfPark
-from disc_golf_park import DiscGolfParkMessageTemplate
+# from disc_golf_park import DiscGolfParkMessageTemplate
 
 import requests
 
@@ -122,15 +122,15 @@ async def new_park(ctx, arg):
 
 
     
-    park_message_template = DiscGolfParkMessageTemplate(park_name, park_coords_list, gmaps_resp.content, udiscs_resp.content, emoji_resp.content)
-    pprint.pp(park_message_template.__dict__)
+    # park_message_template = DiscGolfParkMessageTemplate(message_template)
+    # pprint.pp(park_message_template.__dict__)
 
     park_emoji = await ctx.guild.fetch_emoji(emoji_resp.content)
 
     for message in messsages_to_be_deleted:
         await message.delete()
     
-    new_park_message = await ctx.send(content=park_message_template.__dict__)
+    new_park_message = await ctx.send(content=str(dict(message_template)))
     await new_park_message.edit(suppress=True)
     await new_park_message.pin()
 

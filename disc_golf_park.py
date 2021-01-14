@@ -19,18 +19,16 @@ class DiscGolfPark:
     def __init__(self, message: discord.Message):
         self.message = message
         updated_message_content = message.content.replace("\'", "\"")
-        park_dict = json.loads(updated_message_content)
-        self.park_details = DiscGolfParkMessageTemplate(park_dict)
-        pprint.pp(park_dict)
+        self.park_details = json.loads(updated_message_content)
         self.weather_info = {}
 
     async def fetch_weather_info(self):
         self.weather_info = self.weather_lat_long(
-            self.park_details.coords[0], self.park_details.coords[1])
+            self.park_details["coords"][0], self.park_details["coords"][1])
 
     async def update_embed(self):
         embed_dict = {
-            "title": f"Weather Deatils for {self.park_details.name}",
+            "title": f"Weather Deatils for {self.park_details['name']}",
             "type": "rich",
             "color": 1009165,
             "description": ""
@@ -62,7 +60,7 @@ class DiscGolfPark:
 **Visibility**: ~{int(current_visibility*1.09361)} yd (~{current_visibility} m)\n\n\
 *Last Updated: {current_datetime_str}*"
         # await self.message.edit(embed=discord.Embed.from_dict(embed_dict))
-        await self.message.channel.send(content="Test",embed=discord.Embed.from_dict(embed_dict))
+        await self.message.channel.send(content="Joe's Mom is Hoe...This we Know",embed=discord.Embed.from_dict(embed_dict))
 
     def fetch_direction_with_degrees(self, degrees: int):
         for item in DIRECTION_DEGREES_TUPLE_LIST:
@@ -90,10 +88,10 @@ class DiscGolfPark:
         ############################################
         return data
 
-class DiscGolfParkMessageTemplate:
-    def __init__(self, message_dictionary_template):
-        for key in message_dictionary_template: 
-            setattr(self, key, message_dictionary_template[key]) 
+# class DiscGolfParkMessageTemplate:
+    # def __init__(self, message_dictionary_template):
+    #     for key in message_dictionary_template: 
+    #         setattr(self, key, message_dictionary_template[key]) 
 
 
     # def convert_from_dict(self,dict:dict):
