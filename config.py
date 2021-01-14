@@ -1,3 +1,5 @@
+from collections import OrderedDict 
+
 INVOCATION = "!"
 DATETIME_STRING_FORMAT = "%m/%d/%y %H:%M %Z"
 GITHUB_REPO = "https://github.com/kyxaa/disc_golf_bot"
@@ -45,3 +47,11 @@ DIRECTION_DEGREES_TUPLE_LIST = [
     (303.75, 326.25, "NW"),
     (326.25, 348.75, "NNW")
 ]
+
+# template for DiscGolfParkMessageTemplate dictionary
+MESSAGE_DICTIONARY_TEMPLATE = OrderedDict()
+MESSAGE_DICTIONARY_TEMPLATE["name"] = ""
+MESSAGE_DICTIONARY_TEMPLATE["coords"] = []
+MESSAGE_DICTIONARY_TEMPLATE["gmaps_url"] = ""
+MESSAGE_DICTIONARY_TEMPLATE["udiscs_url"] = ""
+MESSAGE_DICTIONARY_TEMPLATE["emoji_id"] = ""
