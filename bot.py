@@ -44,44 +44,50 @@ async def on_ready():
 
 
 
-class ParkWeatherUpdateCog(commands.Cog):
-    def __init__(self):
-        self.index = 0
-        self.bot = bot
-        self.update.start()
+# class ParkInformationFetching(commands.Cog):
+#     def __init__(self):
+#         self.bot = bot
 
-    def cog_unload(self):
-        self.update.cancel()
+#     async def fetch_park_by_emoji(self, emoji):
+#         channels = bot.get_all_channels()
+#         for channel in channels:
+#             if channel.name == "course-info":
+#                 # await emoji = 
+#                 # park_template = DiscGolfParkMessageTemplate("BB Owens", ["32.881046", "-96.698731"], "https://goo.gl/maps/99TmQpQVixNcAn8U8", "https://app.udisc.com/applink/course/2225", "")
+#                 pinned_messages = await channel.pins()
+#                 for pinned_message in pinned_messages:
+#                     if pinned_message.reaction[0] == emoji:
 
-    @tasks.loop(minutes=60.0)
-    async def update(self):
-        await self.scan_channel_and_update_embeds()
-        pass
 
-    @update.before_loop
-    async def before_update(self):
-        print('waiting...')
-        await self.bot.wait_until_ready()
+#                         message = await channel.fetch_message(pinned_message.id)
+#                         park = DiscGolfPark(message)
+#                         await park.fetch_weather_info()
+#                     # pprint.pp(park.__dict__)
+#                         await park.fetch_embed()
+#                         return park
+#                     else:
+#                         return None
+#                     # emoji = message.reactions[0].emoji
+#                     # await message.clear_reactions()
+#                     # await message.add_reaction(emoji)
+#                     # pprint.pp(message.reactions[0].emoji)
+#                     # pprint.pp(message)
 
-    async def scan_channel_and_update_embeds(self):
-        channels = bot.get_all_channels()
-        for channel in channels:
-            if channel.name == "course-info":
-                # await emoji = 
-                # park_template = DiscGolfParkMessageTemplate("BB Owens", ["32.881046", "-96.698731"], "https://goo.gl/maps/99TmQpQVixNcAn8U8", "https://app.udisc.com/applink/course/2225", "")
-                pinned_messages = await channel.pins()
-                for pinned_message in pinned_messages:
-                    message = await channel.fetch_message(pinned_message.id)
+async def fetch_park_by_emoji(emoji):
+    channels = bot.get_all_channels()
+    for channel in channels:
+        if channel.name == "course-info":
+            # await emoji = 
+            # park_template = DiscGolfParkMessageTemplate("BB Owens", ["32.881046", "-96.698731"], "https://goo.gl/maps/99TmQpQVixNcAn8U8", "https://app.udisc.com/applink/course/2225", "")
+            pinned_messages = await channel.pins()
+            for pinned_message in pinned_messages:
+                message = await channel.fetch_message(pinned_message.id)
+                if message.reactions[0].emoji == emoji:
                     park = DiscGolfPark(message)
                     await park.fetch_weather_info()
-                    # pprint.pp(park.__dict__)
-                    await park.update_embed()
-                    # emoji = message.reactions[0].emoji
-                    # await message.clear_reactions()
-                    # await message.add_reaction(emoji)
-                    # pprint.pp(message.reactions[0].emoji)
-                    # pprint.pp(message)
-
+                # pprint.pp(park.__dict__)
+                    await park.fetch_embed()
+                    return park                    
 
 @bot.command()
 async def new_park(ctx, arg):
@@ -141,14 +147,47 @@ async def new_park(ctx, arg):
     # desc_req = await ctx.send(content=f"What can you tell me about >>>{name_resp.content}<<<?")
     # desc_resp = await bot.wait_for('message', check=check)
 
+async def fetch_context_from_payload(payload):
+    channel = await bot.fetch_channel(payload.channel_id)
+    message = await channel.fetch_message(payload.message_id)
+    ctx = await bot.get_context(message)
+    return ctx
+
+@bot.listen()
+async def on_raw_reaction_add(payload):
+    ctx = await fetch_context_from_payload(payload)
 
 
+    if not payload.member == ctx.me:
+        error_occurred = False
+        park_emoji = discord.Emoji
+        try:
+            park_emoji = await ctx.guild.fetch_emoji(payload.emoji.id)
+        except:
+            print("Emoji from another server, do nothing")
+            error_occurred = True
+
+        if not error_occurred:
+            park = await fetch_park_by_emoji(park_emoji)
+            if not park is None:
+                await payload.member.send(content=f"**{park.park_details['name']}**\n\
+===============================\n\
+Google Maps Link: {park.park_details['gmaps_url']}\n\
+\n\
+UDisc App Link: {park.park_details['udiscs_url']}",embed=park.embed)
+                pass
+            
+
+        
+
+        
+        
 
 
 
 
 # weather_lat_long(33.044564, -96.691857)
-bot.add_cog(ParkWeatherUpdateCog())
+# bot.add_cog(ParkInformationFetching())
 bot.run(DISCORD_TOKEN)
 
 

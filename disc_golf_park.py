@@ -26,7 +26,7 @@ class DiscGolfPark:
         self.weather_info = self.weather_lat_long(
             self.park_details["coords"][0], self.park_details["coords"][1])
 
-    async def update_embed(self):
+    async def fetch_embed(self):
         embed_dict = {
             "title": f"Weather Deatils for {self.park_details['name']}",
             "type": "rich",
@@ -60,7 +60,8 @@ class DiscGolfPark:
 **Visibility**: ~{int(current_visibility*1.09361)} yd (~{current_visibility} m)\n\n\
 *Last Updated: {current_datetime_str}*"
         # await self.message.edit(embed=discord.Embed.from_dict(embed_dict))
-        await self.message.channel.send(content="Joe's Mom is Hoe...This we Know",embed=discord.Embed.from_dict(embed_dict))
+        self.embed = discord.Embed.from_dict(embed_dict)
+        # await self.message.channel.send(content="Joe's Mom is Hoe...This we Know",embed=discord.Embed.from_dict(embed_dict))
 
     def fetch_direction_with_degrees(self, degrees: int):
         for item in DIRECTION_DEGREES_TUPLE_LIST:
