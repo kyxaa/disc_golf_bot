@@ -170,7 +170,7 @@ async def on_raw_reaction_add(payload):
         if not error_occurred:
             park = await fetch_park_by_emoji(park_emoji)
             if not park is None:
-                await payload.member.send(content=f"**{park.park_details['name']}**\n\
+                message = await payload.member.send(content=f"**{park.park_details['name']}**\n\
 ===============================\n\
 Google Maps Link: {park.park_details['gmaps_url']}\n\
 \n\
