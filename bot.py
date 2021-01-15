@@ -1,21 +1,18 @@
 import discord
-from discord import message
-from discord.ext import tasks, commands
+from discord.ext import commands
 from config import INVOCATION, GITHUB_REPO, MESSAGE_DICTIONARY_TEMPLATE
-from datetime import datetime
 from dotenv import load_dotenv
 from os import getenv
 import pprint
-import re
-import sys
+
 # import json
 # from bs4 import BeautifulSoup
-import asyncio
+
 # import asyncpg
 from disc_golf_park import DiscGolfPark
 # from disc_golf_park import DiscGolfParkMessageTemplate
 
-import requests
+
 
 load_dotenv()
 DISCORD_TOKEN = getenv("DISCORD_TOKEN")

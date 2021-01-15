@@ -2,13 +2,10 @@ from typing import Dict, OrderedDict
 import discord
 import requests
 from datetime import datetime
-import re
 import json
 from pytz import timezone
 from dotenv import load_dotenv
 from os import getenv
-import pprint
-import pandas
 from config import DATETIME_STRING_FORMAT, ICON_CODE_TUPLE_LIST, DIRECTION_DEGREES_TUPLE_LIST
 
 load_dotenv()
