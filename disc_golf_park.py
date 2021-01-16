@@ -38,6 +38,8 @@ class DiscGolfPark:
 
         current_wind_direction = self.fetch_direction_with_degrees(
             self.weather_info["current"]["wind_deg"])
+        
+        current_wind_speed = self.weather_info["current"]["wind_speed"]
 
         current_datetime = datetime.fromtimestamp(
             self.weather_info["current"]["dt"], tz=timezone(self.weather_info["timezone"]))
@@ -54,6 +56,7 @@ class DiscGolfPark:
 **Weather**: {current_weather_icon}\n\
 **Temperature**: {str(current_temp)} F ({str(round(((current_temp - 32) * 5 / 9),2))} C)\n\
 **Wind Direction**: {current_wind_direction}\n\
+**Wind Speed**: {current_wind_speed} Miles Per Hour ({round(current_wind_speed*.44704,2)} Meter per second)\n\
 **Visibility**: ~{int(current_visibility*1.09361)} yd (~{current_visibility} m)\n\n\
 *Last Updated: {current_datetime_str}*"
         # await self.message.edit(embed=discord.Embed.from_dict(embed_dict))
