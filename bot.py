@@ -99,10 +99,12 @@ async def new_park(ctx, arg):
     gmaps_resp = await bot.wait_for('message', check=check)
     messsages_to_be_deleted.append(gmaps_resp)
     
-    udiscs_req = await ctx.send(content=f"What is the UDiscs link for {park_name}?")
+    udiscs_req = await ctx.send(content=f"What is the UDiscs link for {park_name} in the format *mobileLink* *browserLink*?")
     messsages_to_be_deleted.append(udiscs_req)
     udiscs_resp = await bot.wait_for('message', check=check)
     messsages_to_be_deleted.append(udiscs_resp)
+
+    udiscs_urls = udiscs_resp.content.split(" ")
 
     coords_req = await ctx.send(content=f"What are the coordinates for {park_name} in the format *lattitude*,*longitude*?")
     messsages_to_be_deleted.append(coords_req)
@@ -115,7 +117,7 @@ async def new_park(ctx, arg):
     messsages_to_be_deleted.append(emoji_req)
     emoji_resp = await bot.wait_for('message', check=check)
     messsages_to_be_deleted.append(emoji_resp)
-    park_details = [park_name, park_coords_list, gmaps_resp.content, udiscs_resp.content, emoji_resp.content]
+    park_details = [park_name, park_coords_list, gmaps_resp.content, udiscs_urls, emoji_resp.content]
 
     message_template = MESSAGE_DICTIONARY_TEMPLATE
     for key,detail in zip(message_template,park_details):
@@ -171,7 +173,9 @@ async def on_raw_reaction_add(payload):
 ===============================\n\
 Google Maps Link: {park.park_details['gmaps_url']}\n\
 \n\
-UDisc App Link: {park.park_details['udiscs_url']}",embed=park.embed)
+UDisc App Link: {park.park_details['udiscs_urls'][0]}\n\
+\n\
+UDisc Browser Link: {park.park_details['udiscs_urls'][1]}",embed=park.embed)
                 pass
             
 
