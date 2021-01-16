@@ -155,18 +155,17 @@ async def fetch_context_from_payload(payload):
 @bot.listen()
 async def on_raw_reaction_add(payload):
     ctx = await fetch_context_from_payload(payload)
-
-
-    if not payload.member == ctx.me:
+    if not ctx.me.id == payload.user_id:
         error_occurred = False
         park_emoji = discord.Emoji
         try:
+            # guild = await bot.fetch_guild(payload.emoji)
             park_emoji = await ctx.guild.fetch_emoji(payload.emoji.id)
         except:
-            print("Emoji from another server, do nothing")
+            print(f"Couldn't fetch emoji, don't worry about it: {str(payload.emoji)}")
             error_occurred = True
 
-        if not error_occurred:
+        if not error_occurred and not park_emoji is None:
             park = await fetch_park_by_emoji(park_emoji)
             if not park is None:
                 message = await payload.member.send(content=f"**{park.park_details['name']}**\n\
@@ -176,25 +175,27 @@ Google Maps Link: {park.park_details['gmaps_url']}\n\
 UDisc App Link: {park.park_details['udiscs_urls'][0]}\n\
 \n\
 UDisc Browser Link: {park.park_details['udiscs_urls'][1]}",embed=park.embed)
-                pass
-            
+                await message.add_reaction(park_emoji)
+                await message.add_reaction("🔄")
+        elif payload.emoji.name == "🔄" and payload.guild_id == None:
+            try:
+                guild = await bot.fetch_guild(ctx.message.reactions[0].emoji.guild_id)
+                park_emoji = await guild.fetch_emoji(ctx.message.reactions[0].emoji.id)
+                        
+                park = await fetch_park_by_emoji(park_emoji)
 
-        
-
-        
-        
-
-
+                if not park is None:
+                    await ctx.message.edit(embed=park.embed)
+            except Exception as ex:
+                print(f"Couldn't fetch emoji, don't worry about it: {str(payload.emoji)}\n{ex}")
 
 
+bot.run(DISCORD_TOKEN)
 # weather_lat_long(33.044564, -96.691857)
 # bot.add_cog(ParkInformationFetching())
-bot.run(DISCORD_TOKEN)
 
 
-                
-
-                # 32.881046750179046, -96.69873166266753
+# 32.881046750179046, -96.69873166266753
 #########Add Park Template#########
 #                 await channel.send(content="**SHAWNEE PARK** (33.044564, -96.691857)\n\
 # # ===============================\n\

@@ -58,7 +58,10 @@ class DiscGolfPark:
 **Wind Direction**: {current_wind_direction}\n\
 **Wind Speed**: {current_wind_speed} Miles Per Hour ({round(current_wind_speed*.44704,2)} Meter per second)\n\
 **Visibility**: ~{int(current_visibility*1.09361)} yd (~{current_visibility} m)\n\n\
-*Last Updated: {current_datetime_str}*"
+*Last Updated: {current_datetime_str}*\n\
+\n\
+React with 🔄 below to refresh this information.\n\
+You'll have to remove the reaction to do it more than once."
         # await self.message.edit(embed=discord.Embed.from_dict(embed_dict))
         self.embed = discord.Embed.from_dict(embed_dict)
         # await self.message.channel.send(content="Joe's Mom is Hoe...This we Know",embed=discord.Embed.from_dict(embed_dict))
