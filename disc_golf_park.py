@@ -47,10 +47,6 @@ class DiscGolfPark:
 
         current_visibility = self.weather_info["current"]["visibility"]
 
-        # if current_datetime.minute < 30:
-        #     start_of_hourly_info = 2
-        # else:
-        #     start_of_hourly_info = 3
         embed_dict["description"] = f"\
 **CURRENT WEATHER**:\n\n\
 **Weather**: {current_weather_icon}\n\
@@ -62,9 +58,8 @@ class DiscGolfPark:
 \n\
 React with 🔄 below to refresh this information.\n\
 You'll have to remove the reaction to do it more than once."
-        # await self.message.edit(embed=discord.Embed.from_dict(embed_dict))
+
         self.embed = discord.Embed.from_dict(embed_dict)
-        # await self.message.channel.send(content="Joe's Mom is Hoe...This we Know",embed=discord.Embed.from_dict(embed_dict))
 
     def fetch_direction_with_degrees(self, degrees: int):
         for item in DIRECTION_DEGREES_TUPLE_LIST:
@@ -80,22 +75,6 @@ You'll have to remove the reaction to do it more than once."
         r = requests.get(
             f'https://api.openweathermap.org/data/2.5/onecall?lat={lat}&lon={lon}&appid={WEATHER_TOKEN}&units=imperial')
         if not r.ok:
-            # return
             raise Exception("ERROR: Could not fetch weather")
         data = r.json()
-        # with open('course_data.json', 'w') as outfile:
-        #     json.dump(data, outfile)
-        #########Only here during testing##########
-        ###########################################
-        # with open('course_data.json', 'r') as infile:
-        #     data = json.load(infile)
-        ############################################
         return data
-
-# class DiscGolfParkMessageTemplate:
-    # def __init__(self, message_dictionary_template):
-    #     for key in message_dictionary_template: 
-    #         setattr(self, key, message_dictionary_template[key]) 
-
-
-    # def convert_from_dict(self,dict:dict):
